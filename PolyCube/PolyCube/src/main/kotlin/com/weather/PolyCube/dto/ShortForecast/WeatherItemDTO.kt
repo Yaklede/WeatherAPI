@@ -11,6 +11,10 @@ data class WeatherItemDTO(
     val baseTime: String? = null,
     @JsonProperty("category")
     val category: String? = null,
+    @JsonProperty("fcstDate")
+    val fcstDate: String? = null,
+    @JsonProperty("fcstTime")
+    val fcstTime: String? = null,
     @JsonProperty("nx")
     val nx: String? = null,
     @JsonProperty("ny")
@@ -18,5 +22,5 @@ data class WeatherItemDTO(
     @JsonProperty("fcstValue")
     val obsrValue: String?,
 ) {
-    constructor() : this(null,null,null,null,null,null)
+    constructor() : this(null,null,null,null,null,null,null,null)
 }

@@ -15,6 +15,10 @@ class ShortForecast(
 
         val category: String? = null,
 
+        val fcstDate: String? = null,
+
+        val fcstTime: String? = null,
+
         val nx: String? = null,
 
         val ny: String? = null,
@@ -24,5 +28,5 @@ class ShortForecast(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long? = null
 ) {
-        constructor(request: WeatherItemDTO) : this(request.baseDate,request.baseTime,request.category,request.nx,request.ny,request.obsrValue)
+        constructor(request: WeatherItemDTO) : this(request.baseDate,request.baseTime,request.category,request.fcstDate,request.fcstTime,request.nx,request.ny,request.obsrValue)
 }
