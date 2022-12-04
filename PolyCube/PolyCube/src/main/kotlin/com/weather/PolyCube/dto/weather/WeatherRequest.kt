@@ -1,5 +1,7 @@
 package com.weather.PolyCube.dto.weather
 
+import kotlin.time.Duration.Companion.milliseconds
+
 data class WeatherRequest(
         val step1: String?,
         val step2: String?,
@@ -13,17 +15,18 @@ data class WeatherRequest(
                 this.nx = nx
                 this.ny = ny
         }
+        fun changeShortBaseTime() {
+                this.baseTime = "0500"
+        }
 
-        fun changeBaseTime(baseTime: String?) {
+        fun changeUltraShortBaseTime(baseTime: String?) {
                 val result = baseTime?.split("0")?.toMutableList()
-//                result?.forEach {
-//                                i -> if(i.isEmpty())
-//                }
-//                if(result?.get(0)?.isEmpty()!!) {
-//                        result?.set(0,"0")
-//                }
-//                result?.set(2,"3")
-//                result?.set(3,"0")
-//                this.baseTime = result?.joinToString()?.replace(", ","")
+                for(i in 0 until result!!.size) {
+                        if(result[i].isEmpty()) {
+                                result[i] = "0"
+                        }
+                }
+                result?.set(2,"3")
+                this.baseTime = result?.joinToString()?.replace(", ","")
         }
 }

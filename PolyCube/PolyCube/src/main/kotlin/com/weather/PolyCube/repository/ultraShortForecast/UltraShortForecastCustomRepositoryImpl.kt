@@ -10,7 +10,8 @@ class UltraShortForecastCustomRepositoryImpl(
 ) : UltraShortForecastCustomRepository {
     override fun findWeatherByRequest(request: WeatherRequest): List<UltraShortForecast>? {
         //시간 데이터 30분 단위로 변경
-        request.changeBaseTime(request.baseTime)
+        request.changeUltraShortBaseTime(request.baseTime)
+        println(request)
         return queryFactory.select(ultraShortForecast)
             .from(ultraShortForecast)
             .where(

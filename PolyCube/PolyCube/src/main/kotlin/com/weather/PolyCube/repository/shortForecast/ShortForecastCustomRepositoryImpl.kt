@@ -10,6 +10,8 @@ class ShortForecastCustomRepositoryImpl(
     : ShortForecastCustomRepository {
 
     override fun findWeatherByRequest(request: WeatherRequest?): List<ShortForecast>? {
+        //기본 데이터 시간을 0500시로 고정 -> api 데이터 0500만 호출 됌
+        request?.changeShortBaseTime()
         return queryFactory.select(shortForecast)
             .from(shortForecast)
             .where(shortForecast.nx.eq(request?.nx)
