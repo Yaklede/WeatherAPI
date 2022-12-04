@@ -1,17 +1,15 @@
 package com.weather.PolyCube.repository.shortForecast
 
-import com.querydsl.jpa.hibernate.HibernateQueryFactory
 import com.querydsl.jpa.impl.JPAQueryFactory
-import com.weather.PolyCube.domain.BaseLocation
 import com.weather.PolyCube.domain.QShortForecast.shortForecast
 import com.weather.PolyCube.domain.ShortForecast
-import com.weather.PolyCube.dto.ShortForecast.ShortForecastRequest
+import com.weather.PolyCube.dto.weather.WeatherRequest
 
 class ShortForecastCustomRepositoryImpl(
     private val queryFactory: JPAQueryFactory)
     : ShortForecastCustomRepository {
 
-    override fun findByWeather(request: ShortForecastRequest?): List<ShortForecast>? {
+    override fun findWeatherByRequest(request: WeatherRequest?): List<ShortForecast>? {
         return queryFactory.select(shortForecast)
             .from(shortForecast)
             .where(shortForecast.nx.eq(request?.nx)

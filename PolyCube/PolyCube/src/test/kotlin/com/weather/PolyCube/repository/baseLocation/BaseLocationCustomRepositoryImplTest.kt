@@ -1,6 +1,6 @@
 package com.weather.PolyCube.repository.baseLocation
 
-import com.weather.PolyCube.dto.ShortForecast.ShortForecastRequest
+import com.weather.PolyCube.dto.weather.WeatherRequest
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.Test
 
@@ -17,7 +17,7 @@ internal class BaseLocationCustomRepositoryImplTest @Autowired constructor(
         val step1 : String = "서울특별시"
         val step2 : String = "종로구"
         val step3 : String = "사직동"
-        val request = ShortForecastRequest(step1, step2, step3, null, null)
+        val request = WeatherRequest(step1, step2, step3, null, null)
         val result = baseLocationRepository.findNxNy(request)
 
         assertThat(result!!.nx).isEqualTo("60")

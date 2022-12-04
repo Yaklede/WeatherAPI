@@ -1,6 +1,6 @@
-package com.weather.PolyCube.dto.ShortForecast
+package com.weather.PolyCube.dto.weather
 
-data class ShortForecastResponse(
+data class WeatherResponse(
     val header : WeatherHeaderDTO?,
     val body : WeatherBodyDTO?,
 ) {

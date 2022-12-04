@@ -1,7 +1,6 @@
 package com.weather.PolyCube.domain
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.weather.PolyCube.dto.ShortForecast.WeatherItemDTO
+import com.weather.PolyCube.dto.weather.WeatherItemDTO
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType

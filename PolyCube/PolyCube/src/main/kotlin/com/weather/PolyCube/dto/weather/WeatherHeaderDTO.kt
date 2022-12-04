@@ -1,4 +1,4 @@
-package com.weather.PolyCube.dto.ShortForecast
+package com.weather.PolyCube.dto.weather
 
 data class WeatherHeaderDTO(
     val resultCode : String?,

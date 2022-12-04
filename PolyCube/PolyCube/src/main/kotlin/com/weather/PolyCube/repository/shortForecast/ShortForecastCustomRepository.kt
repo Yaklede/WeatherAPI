@@ -1,9 +1,8 @@
 package com.weather.PolyCube.repository.shortForecast
 
-import com.weather.PolyCube.domain.BaseLocation
 import com.weather.PolyCube.domain.ShortForecast
-import com.weather.PolyCube.dto.ShortForecast.ShortForecastRequest
+import com.weather.PolyCube.dto.weather.WeatherRequest
 
 interface ShortForecastCustomRepository {
-    fun findByWeather(request: ShortForecastRequest?) : List<ShortForecast>?
+    fun findWeatherByRequest(request: WeatherRequest?) : List<ShortForecast>?
 }

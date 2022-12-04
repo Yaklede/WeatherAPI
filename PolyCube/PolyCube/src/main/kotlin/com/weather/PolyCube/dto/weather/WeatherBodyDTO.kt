@@ -1,4 +1,4 @@
-package com.weather.PolyCube.dto.ShortForecast
+package com.weather.PolyCube.dto.weather
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
