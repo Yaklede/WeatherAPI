@@ -22,6 +22,5 @@ class MidForecastController(
         header.contentType = MediaType.APPLICATION_JSON
         val weatherApi = midForecastService.getWeather(request)
         return ResponseEntity.ok().body(weatherApi)
-
     }
 }

@@ -26,7 +26,6 @@ class ShortForecastService(
         fun getWeather(request: WeatherRequest) : List<ShortForecast>? {
                 val resultBaseLocation = baseLocationRepository.findNxNy(request)
                 resultBaseLocation?.nx?.let { request.changeNxNy(it,resultBaseLocation.ny) }
-                println("nx = ${request.nx} ny = ${request.ny}")
                 val weather = shortForecastRepository.findWeatherByRequest(request)
                 if (weather != null) {
                         if(weather.isEmpty()) {
