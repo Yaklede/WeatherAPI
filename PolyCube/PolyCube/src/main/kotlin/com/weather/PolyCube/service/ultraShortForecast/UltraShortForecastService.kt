@@ -82,11 +82,15 @@ class UltraShortForecastService(
         val jsonUrl: URL = URL(uri.toString())
 
         println("uri = $uri")
-        val apiResponse = restTemplate.getForEntity(jsonUrl.toURI() ,Map::class.java).body.get("response")
+        val apiResponse = restTemplate.getForEntity(jsonUrl.toURI(), Map::class.java).body.get("response")
         val objectMapper = ObjectMapper()
         val apiResponseString = objectMapper.writeValueAsString(apiResponse)
         val data = objectMapper.readValue(apiResponseString, WeatherResponse::class.java)
-        ultraShortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO -> UltraShortForecast(weatherItemDTO) })
+        ultraShortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO ->
+            UltraShortForecast(
+                weatherItemDTO
+            )
+        })
         return ultraShortForecastRepository.findWeatherByRequest(request)
 
     }
