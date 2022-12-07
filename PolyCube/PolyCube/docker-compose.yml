@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  mysqldb:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: weather
+      MYSQL_ROOT_PASSWORD: gimin0831
+    ports:
+      - 3333:3306
+
+  backend:
+    build: .
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/weather
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: gimin0831q
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysqldb
