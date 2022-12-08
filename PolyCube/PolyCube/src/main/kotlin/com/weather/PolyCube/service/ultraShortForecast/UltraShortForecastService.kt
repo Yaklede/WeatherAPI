@@ -6,6 +6,7 @@ import com.weather.PolyCube.dto.weather.WeatherRequest
 import com.weather.PolyCube.dto.weather.WeatherResponse
 import com.weather.PolyCube.repository.baseLocation.BaseLocationRepository
 import com.weather.PolyCube.repository.ultraShortForecast.UltraShortForecastRepository
+import lombok.extern.slf4j.Slf4j
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -23,20 +24,45 @@ class UltraShortForecastService(
 ) {
     @Transactional
     fun getWeather(request: WeatherRequest) : List<UltraShortForecast>? {
-        val resultBaseLocation = baseLocationRepository.findNxNy(request)
-        resultBaseLocation?.nx?.let { request.changeNxNy(it,resultBaseLocation.ny) }
-        println("nx = ${request.nx} ny = ${request.ny}")
-        val weather = ultraShortForecastRepository.findWeatherByRequest(request)
-        if (weather != null) {
-            if(weather.isEmpty()) {
-                return getWeatherApi(request)
-            }
+        setNxNyByRequest(request)
+        return getUltraShortForecast(request)
+    }
+
+    private fun getUltraShortForecast(request: WeatherRequest): List<UltraShortForecast>? {
+        try {
+            ultraShortForecastRepository.findWeatherByRequest(request) ?: IllegalArgumentException()
+        } catch (e: IllegalArgumentException) {
+            return getWeatherApi(request)
         }
-        return weather
+        return ultraShortForecastRepository.findWeatherByRequest(request)
+    }
+
+    private fun setNxNyByRequest(request: WeatherRequest) {
+        val resultBaseLocation = baseLocationRepository.findNxNy(request)
+        resultBaseLocation?.nx?.let { request.changeNxNy(it, resultBaseLocation.ny) }
     }
 
     @Transactional
     fun getWeatherApi(request: WeatherRequest): List<UltraShortForecast>? {
+        val (restTemplate, uri: UriComponents, jsonUrl: URL) = createUrlByRequest(request)
+        saveUltraShortForecast(restTemplate, jsonUrl)
+        return ultraShortForecastRepository.findWeatherByRequest(request)
+
+    }
+
+    private fun saveUltraShortForecast(restTemplate: RestTemplate, jsonUrl: URL) {
+        val apiResponse = restTemplate.getForEntity(jsonUrl.toURI(), Map::class.java).body.get("response")
+        val objectMapper = ObjectMapper()
+        val apiResponseString = objectMapper.writeValueAsString(apiResponse)
+        val data = objectMapper.readValue(apiResponseString, WeatherResponse::class.java)
+        ultraShortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO ->
+            UltraShortForecast(
+                weatherItemDTO
+            )
+        })
+    }
+
+    private fun createUrlByRequest(request: WeatherRequest): Triple<RestTemplate, UriComponents, URL> {
         val url: String = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst"
         val serviceKey: String =
             "mr5bzFw5az+cY7uRgx3KT1gW45Dyzy+1JXQHPi4PcW/4Se5DFW3GxmVpWif3IjBfXYBAWbEPDrACuIwKnI4olA=="
@@ -80,18 +106,6 @@ class UltraShortForecastService(
         ).build()
 
         val jsonUrl: URL = URL(uri.toString())
-
-        println("uri = $uri")
-        val apiResponse = restTemplate.getForEntity(jsonUrl.toURI(), Map::class.java).body.get("response")
-        val objectMapper = ObjectMapper()
-        val apiResponseString = objectMapper.writeValueAsString(apiResponse)
-        val data = objectMapper.readValue(apiResponseString, WeatherResponse::class.java)
-        ultraShortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO ->
-            UltraShortForecast(
-                weatherItemDTO
-            )
-        })
-        return ultraShortForecastRepository.findWeatherByRequest(request)
-
+        return Triple(restTemplate, uri, jsonUrl)
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponents
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URL
 import java.net.URLEncoder
+import kotlin.IllegalArgumentException
 
 
 @Service
@@ -24,18 +25,46 @@ class ShortForecastService(
 ) {
         @Transactional
         fun getWeather(request: WeatherRequest) : List<ShortForecast>? {
-                val resultBaseLocation = baseLocationRepository.findNxNy(request)
-                resultBaseLocation?.nx?.let { request.changeNxNy(it,resultBaseLocation.ny) }
-                val weather = shortForecastRepository.findWeatherByRequest(request)
-                if (weather != null) {
-                        if(weather.isEmpty()) {
-                                return getWeatherApi(request)
-                        }
-                }
-                return weather
+                setNxNyByRequest(request)
+                return getShortForecast(request)
         }
+
+        private fun setNxNyByRequest(request: WeatherRequest) {
+                val resultBaseLocation = baseLocationRepository.findNxNy(request)
+                resultBaseLocation?.nx?.let { request.changeNxNy(it, resultBaseLocation.ny) }
+        }
+
+        private fun getShortForecast(request: WeatherRequest) : List<ShortForecast>? {
+                try {
+                        shortForecastRepository.findWeatherByRequest(request) ?: IllegalArgumentException()
+                } catch (e: IllegalArgumentException) {
+                        getWeatherApi(request)
+                }
+                return shortForecastRepository.findWeatherByRequest(request)
+        }
+
         @Transactional
         fun getWeatherApi(request: WeatherRequest): List<ShortForecast>? {
+                val (restTemplate, uri: UriComponents, jsonUrl: URL) = createUrlByRequest(request)
+                println("uri = $uri")
+                saveShortForecast(restTemplate, jsonUrl)
+                return shortForecastRepository.findWeatherByRequest(request)
+
+        }
+
+        private fun saveShortForecast(restTemplate: RestTemplate, jsonUrl: URL) {
+                val apiResponse = restTemplate.getForEntity(jsonUrl.toURI(), Map::class.java).body.get("response")
+                val objectMapper = ObjectMapper()
+                val apiResponseString = objectMapper.writeValueAsString(apiResponse)
+                val data = objectMapper.readValue(apiResponseString, WeatherResponse::class.java)
+                shortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO ->
+                        ShortForecast(
+                                weatherItemDTO
+                        )
+                })
+        }
+
+        private fun createUrlByRequest(request: WeatherRequest): Triple<RestTemplate, UriComponents, URL> {
                 val url: String = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
                 val serviceKey: String =
                         "mr5bzFw5az+cY7uRgx3KT1gW45Dyzy+1JXQHPi4PcW/4Se5DFW3GxmVpWif3IjBfXYBAWbEPDrACuIwKnI4olA=="
@@ -79,14 +108,6 @@ class ShortForecastService(
                 ).build()
 
                 val jsonUrl: URL = URL(uri.toString())
-
-                println("uri = $uri")
-                val apiResponse = restTemplate.getForEntity(jsonUrl.toURI() ,Map::class.java).body.get("response")
-                val objectMapper = ObjectMapper()
-                val apiResponseString = objectMapper.writeValueAsString(apiResponse)
-                val data = objectMapper.readValue(apiResponseString,WeatherResponse::class.java)
-                shortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO -> ShortForecast(weatherItemDTO) })
-                return shortForecastRepository.findWeatherByRequest(request)
-
+                return Triple(restTemplate, uri, jsonUrl)
         }
 }

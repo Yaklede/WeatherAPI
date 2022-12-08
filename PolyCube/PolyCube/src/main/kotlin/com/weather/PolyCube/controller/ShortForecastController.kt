@@ -7,7 +7,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -15,13 +15,7 @@ class ShortForecastController(
     private val shortForecastService: ShortForecastService
 ) {
     @GetMapping(value = ["/weather/getShort"], produces = ["application/json"])
-    fun getWeather(@RequestParam("step1") step1:String,
-                   @RequestParam("step2") step2:String,
-                   @RequestParam("step3")step3:String,
-                   @RequestParam("baseTime") baseTime:String,
-                   @RequestParam("baseDate") baseDate:String,
-                            ) : ResponseEntity<List<ShortForecast>>? {
-        val request = WeatherRequest(step1,step2,step3,baseTime,baseDate)
+    fun getWeather(@ModelAttribute request : WeatherRequest) : ResponseEntity<List<ShortForecast>>? {
         val header = HttpHeaders()
         header.contentType = MediaType.APPLICATION_JSON
         val weatherApi = shortForecastService.getWeather(request)

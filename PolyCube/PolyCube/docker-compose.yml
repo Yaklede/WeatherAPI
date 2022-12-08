@@ -15,7 +15,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/weather
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: gimin0831q
+      SPRING_DATASOURCE_PASSWORD: gimin0831
     ports:
       - 8080:8080
     depends_on:

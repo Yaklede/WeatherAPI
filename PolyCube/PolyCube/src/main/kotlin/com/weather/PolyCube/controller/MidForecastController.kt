@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
@@ -15,9 +16,7 @@ class MidForecastController(
     private val midForecastService: MidForecastService,
 ) {
     @GetMapping(value = ["/weather/getMid"], produces = ["application/json"])
-    fun getWeather(@RequestParam("city") city:String,
-                   @RequestParam("tmFc") tmFc:String,) : ResponseEntity<MidForecast>? {
-        val request = WeatherMidRequest(city,null,tmFc)
+    fun getWeather(@ModelAttribute request: WeatherMidRequest) : ResponseEntity<MidForecast>? {
         val header = HttpHeaders()
         header.contentType = MediaType.APPLICATION_JSON
         val weatherApi = midForecastService.getWeather(request)
