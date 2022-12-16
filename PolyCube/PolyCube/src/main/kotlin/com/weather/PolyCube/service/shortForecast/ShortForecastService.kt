@@ -31,13 +31,13 @@ class ShortForecastService(
         }
 
         private fun setNxNyByRequest(request: WeatherRequest) {
-                val resultBaseLocation = baseLocationRepository.findNxNy(request)
+                val resultBaseLocation = baseLocationRepository.findNxNy(request) ?: throw IllegalArgumentException()
                 resultBaseLocation?.nx?.let { request.changeNxNy(it, resultBaseLocation.ny) }
         }
 
         private fun getShortForecast(request: WeatherRequest) : List<ShortForecast>? {
                 try {
-                        shortForecastRepository.findWeatherByRequest(request) ?: IllegalArgumentException()
+                        shortForecastRepository.findWeatherByRequest(request) ?: throw IllegalArgumentException()
                 } catch (e: IllegalArgumentException) {
                         getWeatherApi(request)
                 }

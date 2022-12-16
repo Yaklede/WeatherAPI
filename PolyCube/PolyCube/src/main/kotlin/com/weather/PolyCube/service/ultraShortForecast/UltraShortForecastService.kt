@@ -29,7 +29,7 @@ class UltraShortForecastService(
 
     private fun getUltraShortForecast(request: WeatherRequest): List<UltraShortForecast>? {
         try {
-            ultraShortForecastRepository.findWeatherByRequest(request) ?: IllegalArgumentException()
+            ultraShortForecastRepository.findWeatherByRequest(request) ?: throw IllegalArgumentException()
         } catch (e: IllegalArgumentException) {
             return getWeatherApi(request)
         }
@@ -37,7 +37,7 @@ class UltraShortForecastService(
     }
 
     private fun setNxNyByRequest(request: WeatherRequest) {
-        val resultBaseLocation = baseLocationRepository.findNxNy(request)
+        val resultBaseLocation = baseLocationRepository.findNxNy(request) ?: throw IllegalArgumentException()
         resultBaseLocation?.nx?.let { request.changeNxNy(it, resultBaseLocation.ny) }
     }
 

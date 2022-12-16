@@ -29,7 +29,7 @@ class MidForecastService(
     }
 
     private fun setRegIdByRequest(request: WeatherMidRequest) {
-        val resultLocationCode = locationCodeRepository.findByCity(request.city)
+        val resultLocationCode = locationCodeRepository.findByCity(request.city) ?: throw IllegalArgumentException()
         request.changeRedId(resultLocationCode?.code)
     }
 
@@ -40,7 +40,7 @@ class MidForecastService(
         } catch (e: IllegalArgumentException) {
             return getWeatherApi(request)
         }
-        return midForecastRepository.findWeatherByRegIdAndTmFc(request.regId, request.tmFc)
+        return midForecastRepository.findWeatherByRegIdAndTmFc(request.regId, request.tmFc) ?: throw IllegalArgumentException()
     }
 
     @Transactional
@@ -48,7 +48,7 @@ class MidForecastService(
         val (restTemplate, uri: UriComponents, jsonUrl: URL) = getUrlByRequest(request)
         println("uri = $uri")
         saveMidForecast(restTemplate, jsonUrl, request)
-        return midForecastRepository.findWeatherByRegIdAndTmFc(request.regId,request.tmFc)
+        return midForecastRepository.findWeatherByRegIdAndTmFc(request.regId,request.tmFc) ?: throw IllegalArgumentException()
     }
 
     private fun saveMidForecast(
