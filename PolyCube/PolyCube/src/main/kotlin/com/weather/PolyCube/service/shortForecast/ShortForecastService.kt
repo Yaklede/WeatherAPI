@@ -7,7 +7,6 @@ import com.weather.PolyCube.dto.weather.WeatherRequest
 import com.weather.PolyCube.dto.weather.WeatherResponse
 import com.weather.PolyCube.repository.baseLocation.BaseLocationRepository
 import com.weather.PolyCube.repository.shortForecast.ShortForecastRepository
-import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
@@ -22,6 +21,8 @@ import kotlin.IllegalArgumentException
 class ShortForecastService(
         private val baseLocationRepository: BaseLocationRepository,
         private val shortForecastRepository: ShortForecastRepository,
+        private val restTemplate: RestTemplate,
+        private val objectMapper: ObjectMapper,
 ) {
         @Transactional
         fun getWeather(request: WeatherRequest) : List<ShortForecast>? {
@@ -54,7 +55,6 @@ class ShortForecastService(
 
         private fun saveShortForecast(restTemplate: RestTemplate, jsonUrl: URL) {
                 val apiResponse = restTemplate.getForEntity(jsonUrl.toURI(), Map::class.java).body.get("response")
-                val objectMapper = ObjectMapper()
                 val apiResponseString = objectMapper.writeValueAsString(apiResponse)
                 val data = objectMapper.readValue(apiResponseString, WeatherResponse::class.java)
                 shortForecastRepository.saveAll(data.body?.items?.item?.map { weatherItemDTO ->
@@ -69,11 +69,6 @@ class ShortForecastService(
                 val serviceKey: String =
                         "mr5bzFw5az+cY7uRgx3KT1gW45Dyzy+1JXQHPi4PcW/4Se5DFW3GxmVpWif3IjBfXYBAWbEPDrACuIwKnI4olA=="
 
-
-                val restTemplate = RestTemplate()
-                val headers = HttpHeaders()
-                headers.contentType = MediaType.APPLICATION_JSON
-                // val entity = HttpEntity<Map<String, Any>>(headers)
                 val uri: UriComponents = UriComponentsBuilder.fromHttpUrl(
                         url
                                 + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + URLEncoder.encode(

@@ -2,15 +2,10 @@ package com.weather.PolyCube.service.midForecast
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.weather.PolyCube.domain.MidForecast
-import com.weather.PolyCube.domain.ShortForecast
 import com.weather.PolyCube.dto.midForecast.WeatherMidRequest
 import com.weather.PolyCube.dto.midForecast.WeatherMidResponse
-import com.weather.PolyCube.dto.weather.WeatherRequest
-import com.weather.PolyCube.dto.weather.WeatherResponse
 import com.weather.PolyCube.repository.locationCode.LocationCodeRepository
 import com.weather.PolyCube.repository.midForecast.MidForecastRepository
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
@@ -23,6 +18,8 @@ import java.net.URLEncoder
 class MidForecastService(
     private val locationCodeRepository: LocationCodeRepository,
     private val midForecastRepository: MidForecastRepository,
+    private val restTemplate: RestTemplate,
+    private val objectMapper: ObjectMapper,
 ) {
     @Transactional
     fun getWeather(request: WeatherMidRequest) : MidForecast? {
@@ -60,7 +57,6 @@ class MidForecastService(
         request: WeatherMidRequest
     ) {
         val apiResponse = restTemplate.getForEntity(jsonUrl.toURI(), Map::class.java).body.get("response")
-        val objectMapper = ObjectMapper()
         val apiResponseString = objectMapper.writeValueAsString(apiResponse)
         val data = objectMapper.readValue(apiResponseString, WeatherMidResponse::class.java)
         midForecastRepository.saveAll(data.body?.items?.item?.map { weatherMidItemDTO ->
@@ -76,10 +72,6 @@ class MidForecastService(
         val serviceKey: String =
             "mr5bzFw5az+cY7uRgx3KT1gW45Dyzy+1JXQHPi4PcW/4Se5DFW3GxmVpWif3IjBfXYBAWbEPDrACuIwKnI4olA=="
 
-
-        val restTemplate = RestTemplate()
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
         val uri: UriComponents = UriComponentsBuilder.fromHttpUrl(
             url
                     + "?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + URLEncoder.encode(
